@@ -1,6 +1,7 @@
+import { Button } from '@/components/button';
 import { Input } from '@/components/input';
 import { colors } from '@/styles/colors';
-import { Calendar as IconCalendar, MapPin } from 'lucide-react-native';
+import { Calendar as IconCalendar, MapPin, Settings2 } from 'lucide-react-native';
 import { Image, Text, View } from 'react-native';
 
 
@@ -21,9 +22,17 @@ export default function Home() {
                     <IconCalendar color={colors.zinc[400]} size={20}/>
                     <Input.Field placeholder='para onde?'/>
                 </Input>
+
+                <View className='py-3 border-b border-zinc-800'>
+                    <Button variant='secondary'>
+                        <Button.Title>Alterar local/data</Button.Title>
+                        <Settings2 color={colors.zinc[200]} size={20}/>
+                    </Button>
+                </View>
+
+                
             </View>
 
-            <View className='py-3 border-b border-zinc-800'></View>
         </View>
     )
 }
