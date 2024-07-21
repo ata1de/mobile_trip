@@ -5,6 +5,7 @@ import { Input } from '@/components/input';
 import { Modal } from '@/components/modal';
 import { colors } from '@/styles/colors';
 import { calendarUtils, DatesSelected } from '@/utils/calendarUtils';
+import { validateInput } from '@/utils/validateInput';
 import dayjs from 'dayjs';
 import { ArrowRight, AtSign, Calendar as IconCalendar, MapPin, Settings2, UserRoundPlus } from 'lucide-react-native';
 import { useState } from 'react';
@@ -60,6 +61,24 @@ export default function Home() {
         }
     }
 
+    function handleRemoveEmail(email: string) {
+        setEmailsInvited(emailsInvited.filter((emailInvite) => emailInvite !== email))
+    }
+
+    function handleInviteGuests() {
+        if (!validateInput.email(emailToInvite)) {
+            return Alert.alert('E-mail', 'E-mail inválido')
+        }
+
+        const emailAlreadyExists = emailsInvited.find((email) => email === emailToInvite)
+
+        if (emailAlreadyExists) {
+            Alert.alert('E-mail', 'E-mail já adicionado')
+        }
+        
+        setEmailsInvited([...emailsInvited, emailToInvite])
+    }
+
     return (
         <View className='flex-1 items-center justify-center px-5'>
             <Image source={require('@/assets/logo.png')} className='h-9' resizeMode='contain'/>
@@ -105,7 +124,11 @@ export default function Home() {
 
                         <Input>
                             <UserRoundPlus color={colors.zinc[400]} size={20}/>
-                            <Input.Field placeholder='Quem estará na viagem?'/>
+                            <Input.Field 
+                            placeholder='Quem estará na viagem?'
+                            onPressIn={() => setIsModalVisible(MODAL.GUESTS)}
+                            
+                            />
                         </Input>
                     </View>
                 )}
@@ -148,18 +171,20 @@ export default function Home() {
             <Modal 
             title='Adicionar convidados'
             subtitle='Os convidados irão receber um e-mail para confimar sua participação na viagem'
+            visible={isModalVisible === MODAL.GUESTS}
+            onClose={() => setIsModalVisible(MODAL.NONE)}
+            
             >
                 <View className='my-2 flex-wrap gap-2 border-b border-zinc-800 py-5 items-start'>
                     {
                         emailsInvited.length > 0 ? (
                             emailsInvited.map((email) => (
-                                <GuestEmail key={email} email={email} onRemove={() => {}}/>
+                                <GuestEmail key={email} email={email} onRemove={() => handleRemoveEmail(email)}/>
                             ))
                         ) : (
                             <Text className='text-zinc-400 font-regular text-base'>Nenhum convidado adicionado</Text>
                         )
                     }
-                    <GuestEmail email='mateus@email.com' onRemove={() => {}}/>
                 </View>
 
                 <View className='gap-4 mt-4'>
@@ -168,10 +193,14 @@ export default function Home() {
                         <Input.Field 
                         placeholder='Digite o e-mail do convidado'
                         keyboardType='email-address'
+                        onChangeText={setEmailToInvite}
+                        value={emailToInvite}
                         />
                     </Input>
 
-                    <Button>
+                    <Button
+                    onPress={() => handleInviteGuests()}
+                    >
                         <Button.Title>Adicionar</Button.Title>
                     </Button>
                 </View>
