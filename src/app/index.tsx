@@ -1,11 +1,12 @@
 import { Button } from '@/components/button';
 import { Calendar } from '@/components/calendar';
+import { GuestEmail } from '@/components/email';
 import { Input } from '@/components/input';
 import { Modal } from '@/components/modal';
 import { colors } from '@/styles/colors';
 import { calendarUtils, DatesSelected } from '@/utils/calendarUtils';
 import dayjs from 'dayjs';
-import { ArrowRight, Calendar as IconCalendar, MapPin, Settings2, UserRoundPlus } from 'lucide-react-native';
+import { ArrowRight, AtSign, Calendar as IconCalendar, MapPin, Settings2, UserRoundPlus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, Image, Keyboard, Text, View } from 'react-native';
 import { DateData } from 'react-native-calendars';
@@ -25,6 +26,8 @@ export default function Home() {
     const [stepForm, setStepForm] = useState<StepForm>(StepForm.TRIP_DETAILS)
     const [datesSelected, setDatesSelected] = useState({} as DatesSelected)
     const  [destination, setDestination] = useState('')
+    const [emailToInvite, setEmailToInvite] = useState('')
+    const [emailsInvited, setEmailsInvited] = useState<string[]>([])
 
     // MODAL
     const [isModalVisible, setIsModalVisible] = useState(MODAL.NONE)
@@ -139,6 +142,38 @@ export default function Home() {
                         <Button.Title>Confirmar</Button.Title>
                     </Button>
 
+                </View>
+            </Modal>
+
+            <Modal 
+            title='Adicionar convidados'
+            subtitle='Os convidados irão receber um e-mail para confimar sua participação na viagem'
+            >
+                <View className='my-2 flex-wrap gap-2 border-b border-zinc-800 py-5 items-start'>
+                    {
+                        emailsInvited.length > 0 ? (
+                            emailsInvited.map((email) => (
+                                <GuestEmail key={email} email={email} onRemove={() => {}}/>
+                            ))
+                        ) : (
+                            <Text className='text-zinc-400 font-regular text-base'>Nenhum convidado adicionado</Text>
+                        )
+                    }
+                    <GuestEmail email='mateus@email.com' onRemove={() => {}}/>
+                </View>
+
+                <View className='gap-4 mt-4'>
+                    <Input variant='secondary'>
+                        <AtSign color={colors.zinc[400]} size={20}/>
+                        <Input.Field 
+                        placeholder='Digite o e-mail do convidado'
+                        keyboardType='email-address'
+                        />
+                    </Input>
+
+                    <Button>
+                        <Button.Title>Adicionar</Button.Title>
+                    </Button>
                 </View>
             </Modal>
 
