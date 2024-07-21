@@ -2,6 +2,7 @@ import { Button } from '@/components/button';
 import { Calendar } from '@/components/calendar';
 import { GuestEmail } from '@/components/email';
 import { Input } from '@/components/input';
+import { Loading } from '@/components/loading';
 import { Modal } from '@/components/modal';
 import { tripServer } from '@/server/trip-server';
 import { tripStorage } from '@/storage/trip';
@@ -11,7 +12,7 @@ import { validateInput } from '@/utils/validateInput';
 import dayjs from 'dayjs';
 import { router } from 'expo-router';
 import { ArrowRight, AtSign, Calendar as IconCalendar, MapPin, Settings2, UserRoundPlus } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Image, Keyboard, Text, View } from 'react-native';
 import { DateData } from 'react-native-calendars';
 
@@ -29,6 +30,7 @@ enum MODAL {
 export default function Home() {
     // Loading
     const [isCreatingTrip, setIsCreatingTrip] = useState(false)
+    const [isGettingTrip, setIsGettingTrip] = useState(false)
 
     const [stepForm, setStepForm] = useState<StepForm>(StepForm.TRIP_DETAILS)
     const [datesSelected, setDatesSelected] = useState({} as DatesSelected)
@@ -96,14 +98,14 @@ export default function Home() {
     async function handleCreateTrip() {
         try {
             setIsCreatingTrip(true)
-
+            
             const newTrip = await tripServer.createTrip({
-                 destination,
-                 emails_to_invite: emailsInvited,
-                 end_at: dayjs(datesSelected.endsAt?.dateString).toString(),
-                 start_at: dayjs(datesSelected.startsAt?.dateString).toString()
+                destination,
+                emails_to_invite: emailsInvited,
+                end_at: dayjs(datesSelected.endsAt?.dateString).toString(),
+                start_at: dayjs(datesSelected.startsAt?.dateString).toString()
             })
-
+            
             Alert.alert('Nova viagem', 'Viagem criada com sucesso', [
                 {
                     text: 'Ok',
@@ -119,14 +121,41 @@ export default function Home() {
         if (!validateInput.email(emailToInvite)) {
             return Alert.alert('E-mail', 'E-mail inválido')
         }
-
+        
         const emailAlreadyExists = emailsInvited.find((email) => email === emailToInvite)
-
+        
         if (emailAlreadyExists) {
             return Alert.alert('E-mail', 'E-mail já adicionado')
         }
-
+        
         setEmailsInvited([...emailsInvited, emailToInvite])
+    }
+    
+    async function getTrip() {
+        try {
+            const tripId = await tripStorage.get()
+
+            if (!tripId) {
+                return setIsGettingTrip(false)
+            }
+
+            const trip = await tripServer.getTripDetails(tripId)
+
+            if (trip) {
+                router.navigate(`/trip/${trip.id}`)
+            }
+        } catch (error) {
+            setIsGettingTrip(false)
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        getTrip()
+    }, [])
+
+    if(!isGettingTrip) {
+        return <Loading/>
     }
 
     return (

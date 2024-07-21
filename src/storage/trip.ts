@@ -10,15 +10,16 @@ async function save(tripId: string) {
    }
 }
 
-async function get(tripId: string) {
+async function get() {
     try {
-     await AsyncStorage.getItem(TRIP_STORAGE_ID)
+     const tripId = await AsyncStorage.getItem(TRIP_STORAGE_ID)
+     return tripId
     } catch (error) {
      throw error
     }
  }
 
-async function remove(tripId: string) {
+async function remove() {
     try {
      await AsyncStorage.removeItem(TRIP_STORAGE_ID)
     } catch (error) {
