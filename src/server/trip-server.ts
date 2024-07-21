@@ -31,7 +31,7 @@ async function createTrip(trip: TripCreate) {
         })
         return data
     } catch (error) {
-        
+        throw error
     }
 }
 

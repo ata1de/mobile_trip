@@ -3,10 +3,13 @@ import { Calendar } from '@/components/calendar';
 import { GuestEmail } from '@/components/email';
 import { Input } from '@/components/input';
 import { Modal } from '@/components/modal';
+import { tripServer } from '@/server/trip-server';
+import { tripStorage } from '@/storage/trip';
 import { colors } from '@/styles/colors';
 import { calendarUtils, DatesSelected } from '@/utils/calendarUtils';
 import { validateInput } from '@/utils/validateInput';
 import dayjs from 'dayjs';
+import { router } from 'expo-router';
 import { ArrowRight, AtSign, Calendar as IconCalendar, MapPin, Settings2, UserRoundPlus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, Image, Keyboard, Text, View } from 'react-native';
@@ -24,6 +27,9 @@ enum MODAL {
 }
 
 export default function Home() {
+    // Loading
+    const [isCreatingTrip, setIsCreatingTrip] = useState(false)
+
     const [stepForm, setStepForm] = useState<StepForm>(StepForm.TRIP_DETAILS)
     const [datesSelected, setDatesSelected] = useState({} as DatesSelected)
     const  [destination, setDestination] = useState('')
@@ -59,10 +65,54 @@ export default function Home() {
         if (stepForm === StepForm.TRIP_DETAILS) {
             return setStepForm(StepForm.ADD_EMAIL)
         }
+
+        Alert.alert('Nova viagem', 'Deseja confirmar a viagem?', [
+            {
+                text: 'Cancelar',
+                'style': 'cancel'
+            },
+            {
+                text: 'Confirmar',
+                onPress: () => handleCreateTrip()
+            }
+        ])
     }
 
     function handleRemoveEmail(email: string) {
         setEmailsInvited(emailsInvited.filter((emailInvite) => emailInvite !== email))
+    }
+
+    async function saveTrip(tripId: string) {
+        try {
+            await tripStorage.save(tripId)
+            router.navigate(`/trip/${tripId}`)
+        } catch (error) {
+            Alert.alert('Salvar viagem', 'Não foi possível salvar a viagem')
+
+            console.log(error)
+        }
+    }
+
+    async function handleCreateTrip() {
+        try {
+            setIsCreatingTrip(true)
+
+            const newTrip = await tripServer.createTrip({
+                 destination,
+                 emails_to_invite: emailsInvited,
+                 end_at: dayjs(datesSelected.endsAt?.dateString).toString(),
+                 start_at: dayjs(datesSelected.startsAt?.dateString).toString()
+            })
+
+            Alert.alert('Nova viagem', 'Viagem criada com sucesso', [
+                {
+                    text: 'Ok',
+                    onPress: () => saveTrip(newTrip.tripId)
+                }
+            ])
+        } catch (error) {
+            
+        }
     }
 
     function handleInviteGuests() {
@@ -73,9 +123,9 @@ export default function Home() {
         const emailAlreadyExists = emailsInvited.find((email) => email === emailToInvite)
 
         if (emailAlreadyExists) {
-            Alert.alert('E-mail', 'E-mail já adicionado')
+            return Alert.alert('E-mail', 'E-mail já adicionado')
         }
-        
+
         setEmailsInvited([...emailsInvited, emailToInvite])
     }
 
@@ -127,14 +177,20 @@ export default function Home() {
                             <Input.Field 
                             placeholder='Quem estará na viagem?'
                             onPressIn={() => setIsModalVisible(MODAL.GUESTS)}
-                            
+                            onFocus={() => Keyboard.dismiss()}
+                            autoCorrect={false}
+                            value={
+                                emailsInvited.length > 0 
+                                ? `${emailsInvited.length} pessoa(s) convidada(s)` :
+                                ''
+                            }showSoftInputOnFocus={false}
                             />
                         </Input>
                     </View>
                 )}
                 
 
-                <Button onPress={handleNextStepForm}>
+                <Button onPress={handleNextStepForm} isLoading={isCreatingTrip}>
                         <Button.Title>
                             {stepForm === StepForm.TRIP_DETAILS ? 'Continuar' : 'Confirmar Viagem'}
                         </Button.Title>
@@ -195,6 +251,8 @@ export default function Home() {
                         keyboardType='email-address'
                         onChangeText={setEmailToInvite}
                         value={emailToInvite}
+                        returnKeyType='send'
+                        onSubmitEditing={handleInviteGuests}
                         />
                     </Input>
 
