@@ -1,5 +1,6 @@
 import { Loading } from '@/components/loading'
 import '@/styles/global.css'
+import '@/utils/dayjsLocaleConfig'
 
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, useFonts } from '@expo-google-fonts/inter'
 import { Slot } from 'expo-router'
