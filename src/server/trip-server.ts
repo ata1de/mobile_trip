@@ -22,10 +22,13 @@ async function getTripDetails(id: string) {
     }
 }
 
-async function createTrip(trip: TripCreate) {
+async function createTrip({destination, emails_to_invite, end_at, start_at}: TripCreate) {
     try {
         const { data } = await api.post<{tripId: string}>('/trips', {
-            ...trip,
+            destination,
+            emails_to_invite,
+            end_at,
+            start_at,
             owner_name: 'John Doe',
             owner_email: 'johndoe@email.com'
         })

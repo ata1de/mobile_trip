@@ -30,7 +30,7 @@ enum MODAL {
 export default function Home() {
     // Loading
     const [isCreatingTrip, setIsCreatingTrip] = useState(false)
-    const [isGettingTrip, setIsGettingTrip] = useState(false)
+    const [isGettingTrip, setIsGettingTrip] = useState(true)
 
     const [stepForm, setStepForm] = useState<StepForm>(StepForm.TRIP_DETAILS)
     const [datesSelected, setDatesSelected] = useState({} as DatesSelected)
@@ -96,14 +96,15 @@ export default function Home() {
     }
 
     async function handleCreateTrip() {
+
         try {
             setIsCreatingTrip(true)
-            
+
             const newTrip = await tripServer.createTrip({
                 destination,
                 emails_to_invite: emailsInvited,
-                end_at: dayjs(datesSelected.endsAt?.dateString).toString(),
-                start_at: dayjs(datesSelected.startsAt?.dateString).toString()
+                end_at: dayjs(datesSelected.endsAt?.dateString).format('YYYY-MM-DD HH:mm:ss'),
+                start_at: dayjs(datesSelected.startsAt?.dateString).format('YYYY-MM-DD HH:mm:ss')
             })
             
             Alert.alert('Nova viagem', 'Viagem criada com sucesso', [
@@ -113,7 +114,8 @@ export default function Home() {
                 }
             ])
         } catch (error) {
-            
+            console.log(error)
+            throw error
         }
     }
 
@@ -140,6 +142,7 @@ export default function Home() {
             }
 
             const trip = await tripServer.getTripDetails(tripId)
+            
 
             if (trip) {
                 router.navigate(`/trip/${trip.id}`)
@@ -154,10 +157,10 @@ export default function Home() {
         getTrip()
     }, [])
 
-    if(!isGettingTrip) {
+    
+    if(isGettingTrip) {
         return <Loading/>
     }
-
     return (
         <View className='flex-1 items-center justify-center px-5'>
             <Image source={require('@/assets/logo.png')} className='h-9' resizeMode='contain'/>
