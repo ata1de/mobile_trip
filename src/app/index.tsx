@@ -106,7 +106,7 @@ export default function Home() {
                 end_at: dayjs(datesSelected.endsAt?.dateString).format('YYYY-MM-DD HH:mm:ss'),
                 start_at: dayjs(datesSelected.startsAt?.dateString).format('YYYY-MM-DD HH:mm:ss')
             })
-            
+          
             Alert.alert('Nova viagem', 'Viagem criada com sucesso', [
                 {
                     text: 'Ok',
@@ -138,6 +138,7 @@ export default function Home() {
             const tripId = await tripStorage.get()
 
             if (!tripId) {
+                console.log('error in get tripId storage')
                 return setIsGettingTrip(false)
             }
 
@@ -149,7 +150,7 @@ export default function Home() {
             }
         } catch (error) {
             setIsGettingTrip(false)
-            console.log(error)
+            console.log('Error getting trip', error)
         }
     }
 

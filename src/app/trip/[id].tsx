@@ -37,8 +37,8 @@ export default function Trip() {
 
     
     return (
-        <View>
-            <Text>Trip</Text>
+        <View className="flex-1 px-5 pt-16">
+            <Text className="text-white text-2xl text-center">Trip</Text>
         </View>
     )
 }

@@ -14,7 +14,7 @@ type TripCreate = Omit<TripDetails, 'id' | 'is_confirmed'> & {
 
 async function getTripDetails(id: string) {
     try {
-        const { data } = await api.get<{trip: TripDetails}>(`/trips/${id}`)
+        const { data } = await api.get<{trip: TripDetails}>(`/trip/${id}`)
         return data.trip
         
     } catch (error) {
