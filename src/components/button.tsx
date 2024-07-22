@@ -12,17 +12,19 @@ type ButtonProps = TouchableOpacityProps & {
 
 const ThemeContext = createContext<{variant?: Variants}>({})
 
-function Button({ children ,variant = 'primary', isLoading, ...props }: ButtonProps) {
+function Button({ children ,variant = 'primary', isLoading, className, ...props }: ButtonProps) {
     return <TouchableOpacity
      className={clsx("w-full h-11 flex justify-center items-center rounded-lg gap-2 flex-row ",
         {
             'bg-lime-300': variant === 'primary',
             'bg-zinc-800': variant === 'secondary',
-        }
+        },
+        className
     )}
     disabled={isLoading}
     activeOpacity={0.7}
-    {...props} 
+    {...props}
+     
     >
         <ThemeContext.Provider value={{variant}}>
             {isLoading ? <ActivityIndicator className="text-lime-950"/> : children}
