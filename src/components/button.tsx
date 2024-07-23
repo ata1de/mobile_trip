@@ -14,7 +14,7 @@ const ThemeContext = createContext<{variant?: Variants}>({})
 
 function Button({ children ,variant = 'primary', isLoading, className, ...props }: ButtonProps) {
     return <TouchableOpacity
-     className={clsx("w-full h-11 flex justify-center items-center rounded-lg gap-2 flex-row ",
+     className={clsx("w-full h-11 flex justify-center items-center rounded-lg gap-2 flex-row px-3 ",
         {
             'bg-lime-300': variant === 'primary',
             'bg-zinc-800': variant === 'secondary',

@@ -136,6 +136,7 @@ export default function Home() {
     async function getTrip() {
         try {
             const tripId = await tripStorage.get()
+            console.log(tripId)
 
             if (!tripId) {
                 console.log('error in get tripId storage')
