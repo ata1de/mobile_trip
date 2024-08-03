@@ -147,6 +147,7 @@ export default function Home() {
             
 
             if (trip) {
+                console.log('Trip criada e agora indo para a pagina de detalhes')
                 router.navigate(`/trip/${trip.id}`)
             }
         } catch (error) {
@@ -155,7 +156,7 @@ export default function Home() {
         }
     }
 
-    useEffect(() => {
+    useEffect(() => {  
         getTrip()
     }, [])
 

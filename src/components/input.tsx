@@ -12,7 +12,7 @@ type InputProps = ViewProps & {
 
 function Input({children, variant = 'primary', className}: InputProps) {
     return <View
-    className={clsx('min-h-15 max-h-16 flex-row items-center gap-2', 
+    className={clsx('min-h-15 max-h-16 flex-row items-center gap-2 my-4', 
         {
         'h-14 px-4 rounded-lg border border-zinc-800': variant !== 'primary',
         'bg-zinc-950': variant === 'secondary',

@@ -28,7 +28,7 @@ export default function Trip() {
     const tripId = useLocalSearchParams<{ id: string}>().id
 
     // Loading
-    const [ isLoadingTrip, setIsLoadingTrip ] = useState(false)
+    const [ isLoadingTrip, setIsLoadingTrip ] = useState(true)
     const [ isUpdating, setIsUpdating ] = useState(false)
 
     //Data
@@ -44,7 +44,6 @@ export default function Trip() {
 
     async function fetchTripData() {
         try {
-            setIsLoadingTrip(true)
 
             if (!tripId) {
                 return router.back()

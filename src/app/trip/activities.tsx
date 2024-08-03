@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Alert, Keyboard, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, Keyboard, SectionList, Text, View } from "react-native";
 
 import { colors } from "@/styles/colors";
 import dayjs from "dayjs";
@@ -10,6 +10,8 @@ import { Calendar } from "@/components/calendar";
 import { Input } from "@/components/input";
 import { Modal } from "@/components/modal";
 
+import { Activity, ActivityProps } from "@/components/activity";
+import { Loading } from "@/components/loading";
 import { ActivitiesServer } from "@/server/activity-server";
 import { TripDetails } from "@/server/trip-server";
 
@@ -24,17 +26,29 @@ enum MODAL{
     ACTIVITY = 2,
 }
 
+type TripActivities = {
+    title: {
+        dayNumber: number
+        dayName: string
+    },
+    data: ActivityProps[]
+}
+
 export function Activities({ tripData }: ActivitiesProps) {
     //MODAL
     const [modal, setModal] = useState(MODAL.NONE)
 
     //LOADING
-    const [isLoadingActivity, setIsLoadingActivity] = useState(false)
+    const [isLoadingActivity, setIsLoadingActivity] = useState(true)
 
     //DATA
     const [ activityTitle, setActivityTitle ] = useState('')
     const [ activityDate, setActivityDate ] = useState('')
     const [ activityHour, setActivityHour ] = useState('')
+
+
+    //LIST
+    const [activitiesData, setActivitiesData] = useState<TripActivities[]>([])
 
     function resetFields() {
         setActivityTitle('')
@@ -64,12 +78,44 @@ export function Activities({ tripData }: ActivitiesProps) {
                     onPress: () => resetFields()
                 }
             ])
+
+            await fetchActivities()
         } catch (error) {
             
         } finally{
             setIsLoadingActivity(false)
         }
     }
+
+    async function fetchActivities() {
+        try {
+            const activities = await ActivitiesServer.getActivitiesByTripId(tripData.id)
+            
+            const activitiesSectionList = activities.map(( dayActivity) => ({
+                title: {
+                    dayNumber: dayjs(dayActivity.date).date(),
+                    dayName: dayjs(dayActivity.date).format('dddd').replace("-feira", "")
+                },
+                data: dayActivity.activities.map((activity) => ({
+                    id: activity.id,
+                    title: activity.title,
+                    hour: dayjs(activity.occurs_at).format('hh[:]mm[h]'),
+                    isBefore: dayjs(activity.occurs_at).isBefore(dayjs())
+                }))
+            }))
+
+            setActivitiesData(activitiesSectionList)
+        } catch (error) {
+            console.log(error)
+            throw error
+        } finally {
+            setIsLoadingActivity(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchActivities()
+    })
 
     return (
         <View className="flex-1">
@@ -81,6 +127,34 @@ export function Activities({ tripData }: ActivitiesProps) {
                     <Button.Title>Adicionar Atividade</Button.Title>
                 </Button>
             </View>
+
+            { isLoadingActivity ? <Loading /> :  
+            
+            <SectionList
+            sections={activitiesData}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <Activity data={item} />}
+            renderSectionHeader={({ section}) => (
+                <View className="w-full">
+                    <Text className="text-zinc-50 text-2xl font-semibold py-2">
+                        Dia {section.title.dayName} 
+                        <Text className="text-zinc-500 text-base font-regular capitalize"> - {section.title.dayName}</Text>
+                    </Text>
+
+                    {
+                        section.data.length === 0 && (
+                            <Text className="text-zinc-500 text-sm font-regular mb-8">Nenhuma atividade cadastrada</Text>
+                        )
+                    }
+                </View>
+            )}
+            contentContainerClassName="gap-3 pb-48"
+            showsVerticalScrollIndicator={false}
+            />
+            }
+
+           
+                
 
             <Modal 
             visible={modal === MODAL.ACTIVITY} 
