@@ -1,8 +1,10 @@
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import { Modal } from "@/components/modal";
+import { Participant, ParticipantProps } from "@/components/participant";
 import { TripLink, TripLinkProps } from "@/components/tripLink";
 import { LinkServer } from "@/server/link-server";
+import { ParticipantsServer } from "@/server/participant-server";
 import { colors } from "@/styles/colors";
 import { validateInput } from "@/utils/validateInput";
 import { Plus } from "lucide-react-native";
@@ -20,9 +22,11 @@ export function Details({ tripId }: { tripId: string }) {
     //LOADING
     const [isCreatingLink, setIsCreatingLink] = useState(false)
     const [isLoadingLinks, setIsLoadingLinks] = useState(false)
+    const [isLoadingParticipants, setIsLoadingParticipants] = useState(false)
 
     //DATA
     const [dataLinks, setDataLinks] = useState<TripLinkProps[]>([])
+    const [dataParticipants, setDataParticipants] = useState<ParticipantProps[]>([])
 
 
     function resetNewLinkFields() {
@@ -70,8 +74,23 @@ export function Details({ tripId }: { tripId: string }) {
         }
     }
 
+    async function getTripParticipants() {
+        try {
+            setIsLoadingParticipants(true)
+            const participants = await ParticipantsServer.getByTripId(tripId)
+            console.log(participants)
+
+            setDataParticipants(participants)
+        } catch (error) {
+            console.log('error in getTripParticipants', error)
+        } finally {
+            setIsLoadingParticipants(false)
+        }
+    }
+
     useEffect(() => {
         fetchLinks()
+        getTripParticipants()
     },[])
 
     return (
@@ -89,6 +108,7 @@ export function Details({ tripId }: { tripId: string }) {
                         data={dataLinks}
                         keyExtractor={item => item.id}
                         renderItem={({ item }) => <TripLink data={item} />}
+                        contentContainerClassName="gap-3 py-3"
                         />
                     )
                 }
@@ -107,6 +127,21 @@ export function Details({ tripId }: { tripId: string }) {
 
             <View className="flex-1 border-t border-zinc-800 mt-4">
                 <Text className="text-zinc-50 text-2xl font-semibold my-6">Links Importantes</Text>
+
+                {
+                    dataParticipants.length == 0 ? (
+                        <Text className="text-zinc-400 font-regular text-base mt-2 mb-6">
+                            Nenhum participante encontrado.
+                        </Text>
+                    ) : (
+                        <FlatList 
+                        data={dataParticipants}
+                        keyExtractor={item => item.id}
+                        renderItem={({ item }) => <Participant data={item} />}
+                        contentContainerClassName="gap-3 pb-3"
+                        />
+                    )
+                }
             </View>
 
             <Modal
