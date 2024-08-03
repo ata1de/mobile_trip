@@ -146,7 +146,7 @@ export default function Trip() {
                 options === 'activity' ? (
                     <Activities tripData={tripData}/>
                 ) : (
-                    <Details/>
+                    <Details tripId={tripData.id}/>
                 )
             }
 

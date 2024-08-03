@@ -90,6 +90,7 @@ export function Activities({ tripData }: ActivitiesProps) {
     async function fetchActivities() {
         try {
             const activities = await ActivitiesServer.getActivitiesByTripId(tripData.id)
+            console.log(activities)
             
             const activitiesSectionList = activities.map(( dayActivity) => ({
                 title: {
@@ -115,7 +116,7 @@ export function Activities({ tripData }: ActivitiesProps) {
 
     useEffect(() => {
         fetchActivities()
-    })
+    }, [])
 
     return (
         <View className="flex-1">
@@ -137,7 +138,7 @@ export function Activities({ tripData }: ActivitiesProps) {
             renderSectionHeader={({ section}) => (
                 <View className="w-full">
                     <Text className="text-zinc-50 text-2xl font-semibold py-2">
-                        Dia {section.title.dayName} 
+                        Dia {section.title.dayNumber} 
                         <Text className="text-zinc-500 text-base font-regular capitalize"> - {section.title.dayName}</Text>
                     </Text>
 
