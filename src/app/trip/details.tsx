@@ -1,12 +1,13 @@
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import { Modal } from "@/components/modal";
+import { TripLink, TripLinkProps } from "@/components/tripLink";
 import { LinkServer } from "@/server/link-server";
 import { colors } from "@/styles/colors";
 import { validateInput } from "@/utils/validateInput";
 import { Plus } from "lucide-react-native";
-import { useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, FlatList, Text, View } from "react-native";
 
 export function Details({ tripId }: { tripId: string }) {
     //MODAL
@@ -18,6 +19,10 @@ export function Details({ tripId }: { tripId: string }) {
 
     //LOADING
     const [isCreatingLink, setIsCreatingLink] = useState(false)
+    const [isLoadingLinks, setIsLoadingLinks] = useState(false)
+
+    //DATA
+    const [dataLinks, setDataLinks] = useState<TripLinkProps[]>([])
 
 
     function resetNewLinkFields() {
@@ -41,7 +46,10 @@ export function Details({ tripId }: { tripId: string }) {
             await LinkServer.createLink({title, url, tripId})
 
             Alert.alert('Sucesso', 'Link cadastrado com sucesso')
+
             resetNewLinkFields()
+            
+            await fetchLinks()
         } catch (error) {
             
         } finally {
@@ -49,19 +57,56 @@ export function Details({ tripId }: { tripId: string }) {
         }
     }
 
+    async function fetchLinks() {
+        try {
+            setIsLoadingLinks(true)
+            const links = await LinkServer.getLinksByTripId(tripId)
+
+            setDataLinks(links)
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível carregar os links')
+        } finally {
+            setIsLoadingLinks(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchLinks()
+    },[])
+
     return (
         <View className="flex-1 mt-10">
             <Text className="text-zinc-50 text-2xl font-semibold mb-2">Links Importantes</Text>
             <View className="flex-1">
+
+                {
+                    dataLinks.length == 0 ? (
+                        <Text className="text-zinc-400 font-regular text-base mt-2 mb-6">
+                            Nenhum link encontrado.
+                        </Text>
+                    ) : (
+                        <FlatList 
+                        data={dataLinks}
+                        keyExtractor={item => item.id}
+                        renderItem={({ item }) => <TripLink data={item} />}
+                        />
+                    )
+                }
+
                 <Button 
                 variant="secondary"
                 onPress={() => setShowLinkModal(true)}
+                className=""
                 >
                     <Plus size={20} color={colors.zinc[400]} />
                     <Button.Title
                     >Cadastrar novo link
                     </Button.Title>
                 </Button>
+            </View>
+
+            <View className="flex-1 border-t border-zinc-800 mt-4">
+                <Text className="text-zinc-50 text-2xl font-semibold my-6">Links Importantes</Text>
             </View>
 
             <Modal
