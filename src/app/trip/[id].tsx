@@ -53,6 +53,10 @@ export default function Trip() {
     async function fetchTripData() {
         try {
 
+            if( tripParams.participantId) {
+                setShowModal(MODAL.CONFIRM_ATTENDANCE)
+            }
+
             if (!tripParams.id) {
                 return router.back()
             }
