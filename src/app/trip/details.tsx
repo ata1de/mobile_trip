@@ -95,8 +95,8 @@ export function Details({ tripId }: { tripId: string }) {
 
     return (
         <View className="flex-1 mt-10">
-            <Text className="text-zinc-50 text-2xl font-semibold mb-2">Links Importantes</Text>
-            <View className="flex-1">
+            <Text className="text-zinc-50 text-2xl font-semibold mb-2">Links Importantes</Text>  
+            <View className="flex-1 border-b border-zinc-800">
 
                 {
                     dataLinks.length == 0 ? (
@@ -124,9 +124,9 @@ export function Details({ tripId }: { tripId: string }) {
                     </Button.Title>
                 </Button>
             </View>
-
-            <View className="flex-1 border-t border-zinc-800 mt-4">
-                <Text className="text-zinc-50 text-2xl font-semibold my-6">Links Importantes</Text>
+            
+            <Text className="text-zinc-50 text-2xl font-semibold my-6 ">Participantes da viagem</Text>
+            <View className="flex-1 ">
 
                 {
                     dataParticipants.length == 0 ? (

@@ -144,12 +144,12 @@ export function Activities({ tripData }: ActivitiesProps) {
 
                     {
                         section.data.length === 0 && (
-                            <Text className="text-zinc-500 text-sm font-regular mb-8">Nenhuma atividade cadastrada</Text>
+                            <Text className="text-zinc-500 text-sm font-regular">Nenhuma atividade cadastrada</Text>
                         )
                     }
                 </View>
             )}
-            contentContainerClassName="gap-3 pb-48"
+            contentContainerClassName="gap-2"
             showsVerticalScrollIndicator={false}
             />
             }

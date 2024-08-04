@@ -85,6 +85,26 @@ export default function Trip() {
         }
     }
 
+    async function handleRemoveTrip() {
+        try {
+            Alert.alert('Remover viagem', 'Deseja realmente remover essa viagem?', [
+                {
+                    text: 'Não',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Sim',
+                    onPress: async () => {
+                        await tripStorage.remove()
+                        router.navigate('/')
+                    }
+                }
+            ])
+        } catch (error) {
+            
+        }
+    }
+
     function handleSelectDates(selectedDay: DateData) {
         const dates = calendarUtils.orderStartsAtAndEndsAt({
             startsAt: datesSelected.startsAt,
@@ -255,6 +275,10 @@ export default function Trip() {
 
                     <Button onPress={handleUpdateTrip} isLoading={isUpdating}>
                         <Button.Title>Atualizar</Button.Title>
+                    </Button>
+
+                    <Button onPress={handleRemoveTrip} variant="secondary">
+                        <Text className="text-red-400">Remover viagem</Text>
                     </Button>
                 </View>
             </Modal>
